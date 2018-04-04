@@ -106,8 +106,32 @@ function formProvider(fields){  //fields是一个对象
                 };
 
                 this.handleValueChange = this.handleValueChange.bind(this);
+                this.setFormValues = this.setFormValues.bind(this);
             }
 
+            //*********************填充字段值***********************************
+            setFormValues(values){
+                if(!values){
+                    return;
+                }
+
+                const { form } = this.state;
+                let newForm = {...form};
+                for(const field in form){
+                    if(form.hasOwnProperty(field)){
+                        if(typeof values[field] !== "undefined"){
+                            newForm[field] = {...newForm[field],value:values[field]};
+                        }
+
+                        //填充的值都是有效的
+                        newForm[field].valid = true;
+                    }
+                }
+
+                this.setState({form : newForm});
+            }
+
+            //*********************动态检验输入字段合法性************************
             handleValueChange (fieldName,value){
                 const { form } = this.state; //把初始化的form赋值给该变量
 
@@ -146,7 +170,13 @@ function formProvider(fields){  //fields是一个对象
             render(){
                 const {form,formValid} = this.state;
                 //将form,formValid,onFormChange三个props传给组件并返回
-                return <Comp {...this.props} form={form} formValid={formValid} onFormChange={this.handleValueChange}/>;
+                return <Comp 
+                            {...this.props} 
+                            form={form} 
+                            formValid={formValid} 
+                            onFormChange={this.handleValueChange}
+                            setFormValues = {this.setFormValues}
+                        />;
             }
         }
         return FormComponent;
